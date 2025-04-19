@@ -20,7 +20,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["main.png"],
+      "resources": ["main.png", "star.svg"],
       "matches": ["<all_urls>"]
     }
   ],

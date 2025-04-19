@@ -1,7 +1,9 @@
-const fs = require('fs');
+const fs = require("fs");
 
 function getImportedFeatures() {
-  const contents = fs.readFileSync('src/pages/ContentScripts/index.ts', 'utf8');
+  const contents = fs.readFileSync("src/pages/ContentScripts/index.ts", "utf8");
+
+  console.log("contents");
   const importedFeatures = [
     ...contents.matchAll(/^import '\.\/features\/([^.]+)';/gm),
   ]
