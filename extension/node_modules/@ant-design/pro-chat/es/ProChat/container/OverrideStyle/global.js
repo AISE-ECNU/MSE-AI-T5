@@ -1,0 +1,6 @@
+import _taggedTemplateLiteral from "@babel/runtime/helpers/esm/taggedTemplateLiteral";
+var _templateObject;
+import { css } from 'antd-style';
+export default (function (token, rootClassName) {
+  return css(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n    line-height: 1;\n    text-size-adjust: none;\n    text-rendering: optimizelegibility;\n    vertical-align: baseline;\n\n    -webkit-font-smoothing: antialiased;\n    -moz-osx-font-smoothing: grayscale;\n    -webkit-overflow-scrolling: touch;\n    -webkit-tap-highlight-color: transparent;\n  }\n\n  .", " {\n    code {\n      font-family: ", " !important;\n\n      span {\n        font-family: ", " !important;\n      }\n    }\n\n    p {\n      word-wrap: break-word;\n    }\n\n    *::selection {\n      color: #000;\n      background: ", ";\n\n      -webkit-text-fill-color: unset !important;\n    }\n\n    * {\n      box-sizing: border-box;\n      vertical-align: baseline;\n    }\n  }\n"])), rootClassName, token.fontFamilyCode, token.fontFamilyCode, token.blue3);
+});

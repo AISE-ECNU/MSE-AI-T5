@@ -74,6 +74,7 @@ const renderTo = (container: any) => {
     <View
       activity={activity}
       openrank={openrank}
+      attention={attention}
       participant={participant}
       contributor={contributor}
       meta={meta}
@@ -112,9 +113,7 @@ const init = async (): Promise<void> => {
         anchor={$("#repo-analysis")}
         width={280}
         arrowPosition="top-middle"
-      >
-        <div> 哈哈哈 笨笨喵！</div>
-      </NativePopover>
+      />
     </>
   );
 };
