@@ -1,5 +1,6 @@
 import features from "../../../../feature-manager";
 import View from "./view";
+import ActivityView from "./activityView";
 import { NativePopover } from "../../components/NativePopover";
 import elementReady from "element-ready";
 import {
@@ -96,12 +97,12 @@ const init = async (): Promise<void> => {
   platform = getPlatform();
   repoName = getRepoName();
   await getData();
-  const container = document.createElement("li");
+  const container = document.createElement("div");
   container.id = featureId;
   renderTo(container);
-  await elementReady("#repository-details-container");
-  $("#repository-details-container").find("ul").find("li")[0].before(container);
-  await waitForElement("#repo-analysis");
+  await elementReady("#repository-container-header");
+  $("#repository-container-header").find("span.Label").after(container);
+  await waitForElement("#activity-header-label");
 
   const placeholderElement = $('<div class="NativePopover" />').appendTo(
     "body"
@@ -109,11 +110,11 @@ const init = async (): Promise<void> => {
   createRoot(placeholderElement).render(
     <>
       <NativePopover
-        anchor={$("#repo-analysis")}
+        anchor={$("#activity-header-label")}
         width={280}
         arrowPosition="top-middle"
       >
-        <div> 哈哈哈 笨笨喵！</div>
+        <ActivityView activity={activity} meta={meta} />
       </NativePopover>
     </>
   );
