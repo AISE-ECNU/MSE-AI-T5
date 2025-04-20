@@ -1,0 +1,23 @@
+import _taggedTemplateLiteral from "@babel/runtime/helpers/esm/taggedTemplateLiteral";
+var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13;
+import { createStyles } from 'antd-style';
+import { isNumber } from 'lodash-es';
+export var useStyles = createStyles(function (_ref, itemMinWidth) {
+  var css = _ref.css,
+    cx = _ref.cx,
+    token = _ref.token,
+    isDarkMode = _ref.isDarkMode,
+    responsive = _ref.responsive,
+    prefixCls = _ref.prefixCls;
+  return {
+    footer: css(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n      display: flex;\n      gap: 8px;\n      justify-content: flex-end;\n    "]))),
+    formTitle: css(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["\n      position: relative;\n\n      display: flex;\n      flex-direction: column;\n      gap: 6px;\n\n      text-align: left;\n\n      > div {\n        font-weight: 500;\n        line-height: 1;\n      }\n\n      > small {\n        display: block;\n\n        line-height: 1;\n        color: ", ";\n        word-wrap: break-word;\n        white-space: pre-wrap;\n      }\n\n      .", "-tag {\n        font-family: ", ";\n      }\n    "])), token.colorTextDescription, prefixCls, token.fontFamilyCode),
+    group: cx(isDarkMode && css(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["\n          .", "-collapse-content {\n            background: transparent;\n          }\n\n          .", "-collapse-header {\n            background: ", ";\n          }\n        "])), prefixCls, prefixCls, token.colorFillTertiary), css(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral(["\n        .", "-collapse-header {\n          align-items: center !important;\n          border-radius: 0 !important;\n        }\n\n        .", "-collapse-content-box {\n          padding-top: 0 !important;\n          padding-bottom: 0 !important;\n        }\n\n        .", "-form-item-label {\n          display: flex;\n          flex-direction: column;\n          justify-content: center;\n        }\n      "])), prefixCls, prefixCls, prefixCls)),
+    icon: css(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral(["\n      transition: all 100ms ", ";\n    "])), token.motionEaseOut),
+    item: css(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral(["\n      padding: 16px 0;\n\n      .", "-row {\n        justify-content: space-between;\n\n        > div {\n          flex: unset !important;\n          flex-grow: unset !important;\n        }\n      }\n\n      .", "-form-item-required::before {\n        align-self: flex-start;\n      }\n\n      ", "\n\n      ", " {\n        padding: 16px 0;\n\n        ", "\n      }\n    "])), prefixCls, prefixCls, itemMinWidth && css(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral(["\n        .", "-form-item-control {\n          width: ", ";\n        }\n      "])), prefixCls, isNumber(itemMinWidth) ? "".concat(itemMinWidth, "px") : itemMinWidth), responsive.mobile, itemMinWidth ? css(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral(["\n              .", "-row {\n                flex-direction: column;\n                gap: 4px;\n              }\n\n              .", "-form-item-control {\n                flex: 1;\n                width: 100%;\n              }\n            "])), prefixCls, prefixCls) : css(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral(["\n              .", "-row {\n                flex-wrap: wrap;\n                gap: 4px;\n              }\n            "])), prefixCls)),
+    itemNoDivider: css(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral(["\n      &:not(:first-child) {\n        padding-top: 0;\n      }\n    "]))),
+    mobileGroupBody: css(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral(["\n      padding: 0 16px;\n      background: ", ";\n    "])), token.colorBgContainer),
+    mobileGroupHeader: css(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral(["\n      padding: 16px;\n      background: ", ";\n    "])), token.colorBgLayout),
+    title: css(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral(["\n      display: flex;\n      gap: 8px;\n      align-items: center;\n\n      font-size: 16px;\n      font-weight: 600;\n\n      .anticon {\n        color: ", ";\n      }\n\n      ", " {\n        font-size: 14px;\n        font-weight: 400;\n        opacity: 0.5;\n      }\n    "])), token.colorPrimary, responsive.mobile)
+  };
+});
