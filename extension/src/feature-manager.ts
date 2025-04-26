@@ -64,7 +64,6 @@ const log = {
 
 // eslint-disable-next-line no-async-promise-executor -- Rule assumes we don't want to leave it pending
 const globalReady = new Promise<object>(async (resolve) => {
-  console.log("Waiting for DOM...");
   await waitFor(() => document.body);
 
   if (pageDetect.is500() || pageDetect.isPasswordConfirmation()) {
@@ -86,7 +85,6 @@ const globalReady = new Promise<object>(async (resolve) => {
 
   document.documentElement.classList.add("MSE-AI-T5");
   const options = await optionsStorage.getAll();
-  console.log("options", options);
   resolve(options);
 });
 
@@ -131,9 +129,6 @@ const add = async (
 ): Promise<void> => {
   /* Feature filtering and running */
   const options = await globalReady;
-  console.log("options", options);
-
-  console.log("9999");
 
   // If the feature is disabled, skip it
   if (!options[id as keyof typeof options]) {

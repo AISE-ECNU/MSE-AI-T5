@@ -13,7 +13,6 @@ export const defaults = Object.assign(
     ])
   )
 );
-console.log("defaults:", defaults);
 
 class OptionsStorage {
   public async getAll(): Promise<HypercrxOptions> {
