@@ -11,11 +11,13 @@ interface Props {
   participant: [string, number][];
   contributor: [string, number][];
   meta: any;
+  // 修改 1: 在 ratings 属性的键名后添加 '?'，使其变回可选的 prop
   ratings?: {
     openrank?: number;
     activity?: number;
     attention?: number;
     contributor?: number;
+    participant?: number;
   };
 }
 
@@ -26,7 +28,9 @@ const AnalysisView: React.FC<Props> = ({
   participant,
   contributor,
   meta,
-  ratings = { openrank: 4.5, activity: 4, attention: 3.5, contributor: 3.9 }, // 提供默认值
+  // 修改 2: 为 ratings prop 提供一个默认的空对象 {}
+  // 这样即使父组件不传递 ratings，代码也不会因 'undefined' 而报错。
+  ratings = {},
 }) => {
   const repoName = getRepoName();
   const chartRefs = {
@@ -42,24 +46,20 @@ const AnalysisView: React.FC<Props> = ({
   const createChartOption = (
     data: [string, number][],
     title: string,
-    color: string,
-    rating?: number
+    color: string
   ) => {
     const recentMonths = data.slice(-12);
     const monthlyData = recentMonths.map((item) => item[1]);
     const monthLabels = recentMonths.map((item) => {
-      const [year, month] = item[0].split("-");
-      return `${month}月`;
+      const [, month] = item[0].split("-");
+      return `${parseInt(month, 10)}月`;
     });
 
     return {
       title: {
         text: title,
-        textStyle: {
-          fontSize: 14,
-          fontWeight: "normal",
-        },
-        left: "15px", // 调整标题位置
+        textStyle: { fontSize: 14, fontWeight: "normal" },
+        left: "15px",
       },
       tooltip: {
         trigger: "axis",
@@ -73,7 +73,7 @@ const AnalysisView: React.FC<Props> = ({
         left: "3%",
         right: "4%",
         bottom: "10%",
-        top: "20%", // 稍微增加顶部空间
+        top: "20%",
         containLabel: true,
       },
       xAxis: {
@@ -162,25 +162,26 @@ const AnalysisView: React.FC<Props> = ({
 
     chartConfigs.forEach((config) => {
       if (config.ref.current && config.data?.length) {
+        const oldRateContainer = config.ref.current.querySelector('.rate-container');
+        if (oldRateContainer) {
+            oldRateContainer.parentElement?.removeChild(oldRateContainer);
+        }
+
         const chart = echarts.init(config.ref.current);
         chart.setOption(
-          createChartOption(
-            config.data,
-            config.title,
-            config.color,
-            config.rating
-          )
+          createChartOption(config.data, config.title, config.color)
         );
 
-        // 只在有评分的情况下渲染评分组件
         if (config.rating !== undefined) {
           const rateContainer = document.createElement("div");
+          rateContainer.className = 'rate-container';
           rateContainer.style.position = "absolute";
           rateContainer.style.left = "100px";
           rateContainer.style.top = "3px";
           rateContainer.style.display = "flex";
           rateContainer.style.alignItems = "center";
           rateContainer.style.gap = "4px";
+          config.ref.current.style.position = 'relative';
           config.ref.current.appendChild(rateContainer);
 
           const root = createRoot(rateContainer);
@@ -193,15 +194,13 @@ const AnalysisView: React.FC<Props> = ({
                 style={{
                   fontSize: "15px",
                   color: "#ffcc00",
-                  transform: "scale(1.0)",
-                  margin: 0,
                 }}
               />
               <span
                 style={{
                   fontSize: "12px",
                   color: "#666",
-                  marginLeft: "10px", // 补偿Rate组件的scale变换导致的间距
+                  marginLeft: "4px",
                 }}
               >
                 {config.rating.toFixed(1)}
@@ -213,7 +212,7 @@ const AnalysisView: React.FC<Props> = ({
         chartsRef.current.push(chart);
       }
     });
-  }, [activity, openrank, attention, contributor, ratings]); // 添加ratings到依赖数组
+  }, [activity, openrank, attention, contributor, ratings]);
 
   React.useEffect(() => {
     initializeCharts();
@@ -264,7 +263,7 @@ const AnalysisView: React.FC<Props> = ({
             fontWeight: "bold",
           }}
         >
-          {repoName.split("/")[1]} 项目分析
+          {getRepoName().split("/")[1]} 项目分析
         </span>
         <span
           style={{
