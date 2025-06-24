@@ -16,6 +16,39 @@ import isGithub from "../../../../helpers/is-github";
 import AnalysisView from "./analysisView";
 const theme = isGithub() ? getGithubTheme() : "light";
 
+// ==================== 计算逻辑函数 ====================
+/**
+ * 缩放函数：将任意数值通过逻辑函数平滑地映射到 [0, 5] 区间。
+ */
+function scaleToFive(value: number, k: number = 0.5, midpoint: number = 10): number {
+  const result = 5 / (1 + Math.exp(-k * (value - midpoint)));
+  return result;
+}
+
+/**
+ * 核心处理函数：接收包含所有图表数据的对象，返回计算后的分数。
+ */
+function processChartData(data: { [key: string]: [string, number][] }): { [key: string]: number } {
+  const processedRatings: { [key: string]: number } = {};
+  for (const key in data) {
+    const dataArray = data[key];
+    if (!dataArray || dataArray.length === 0) {
+      processedRatings[key] = 0;
+      continue;
+    }
+    const sum = dataArray.reduce((acc, [, value]) => acc + value, 0);
+    if (sum === 0) {
+      processedRatings[key] = 0;
+      continue;
+    }
+    const logSum = Math.log(sum + 1);
+    const rating = scaleToFive(logSum, 0.5, 10);
+    processedRatings[key] = rating;
+  }
+  return processedRatings;
+}
+// =========================================================
+
 interface Props {
   activity: any;
   openrank: any;
@@ -56,6 +89,28 @@ const View = ({
   const participantData = generateDataByMonth(participant, meta.updatedAt);
   const contributorData = generateDataByMonth(contributor, meta.updatedAt);
   const attentionData = generateDataByMonth(attention, meta.updatedAt);
+
+  // --- 新增：在这里执行所有计算 ---
+  // 1. 聚合所有月度数据
+  const allChartData = {
+    openrank: openrankData,
+    activity: activityData,
+    attention: attentionData,
+    contributor: contributorData,
+    participant: participantData,
+  };
+
+  // 2. 计算每个指标的 0-5 分数
+  const calculatedRatings = processChartData(allChartData);
+  
+  // 3. 计算所有分数的平均值
+  const ratingValues = Object.values(calculatedRatings);
+  const averageRating =
+    ratingValues.length > 0
+      ? ratingValues.reduce((sum, current) => sum + current, 0) / ratingValues.length
+      : 0;
+  // --- 计算结束 ---
+
   const starLogo = chrome.runtime.getURL("star.svg");
 
   const textColor = isGithub()
@@ -64,9 +119,6 @@ const View = ({
       : "#C9D1D9"
     : "#40485B";
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const change_state = () => {
-    setIsMenuVisible(!isMenuVisible);
-  };
 
   return (
     <div>
@@ -79,6 +131,8 @@ const View = ({
             participant={participantData}
             contributor={contributorData}
             meta={meta}
+            // 将计算出的单项分数传递给子组件
+            ratings={calculatedRatings}
           />
         }
         trigger="click"
@@ -110,7 +164,8 @@ const View = ({
                   justifyContent: "center",
                 }}
               >
-                4.0{" "}
+                {/* 使用动态计算的平均分替换写死的 "4.0" */}
+                {averageRating.toFixed(1)}{" "}
               </span>
             </span>
             <svg
