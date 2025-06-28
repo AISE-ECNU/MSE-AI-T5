@@ -9,6 +9,8 @@ extension/coverage
 # production
 extension/build
 extension/release
+frontend/node_modules
+frontend/.vscode
 
 # misc
 .DS_Store
