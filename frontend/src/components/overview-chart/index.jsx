@@ -1,28 +1,20 @@
 import React, { useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
-import { metaStore } from "../../api/common.ts";
-import {
-  getOpenrank,
-  getActivity,
-  getIssueComments,
-  getAttention,
-} from "../../api/repo.ts";
-import generateDataByMonth from "../../helpers/generate-data-by-month.ts";
 
-const OverviewChart = ({ repo }) => {
+const OverviewChart = ({ repo, analysisData }) => {
   const [chartData, setChartData] = useState({
     openrankData: [],
     activityData: [],
     issueCommentsData: [],
     attentionData: [],
   });
+  const [aiResult, setAiResult] = useState(""); // AI分析结果
+  const [loading, setLoading] = useState(false);
 
   const filterLastYearData = (data) => {
     if (!data || data.length === 0) return [];
-
     const now = new Date();
     const oneYearAgo = new Date(now.setFullYear(now.getFullYear() - 1));
-
     return data.filter((item) => {
       const itemDate = new Date(item[0]);
       return itemDate >= oneYearAgo;
@@ -30,46 +22,57 @@ const OverviewChart = ({ repo }) => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const meta = await metaStore.get("github", repo);
-      const openrank = await getOpenrank("github", repo);
-      const activity = await getActivity("github", repo);
-      const issuecomments = await getIssueComments("github", repo);
-      const attention = await getAttention("github", repo);
-
-      const rawOpenrankData = generateDataByMonth(openrank, meta.updatedAt);
-      const rawActivityData = generateDataByMonth(activity, meta.updatedAt);
-      const rawIssueCommentsData = generateDataByMonth(
-        issuecomments,
-        meta.updatedAt
-      );
-      const rawAttentionData = generateDataByMonth(attention, meta.updatedAt);
-
+    if (analysisData) {
+      const activityData = analysisData.activity || [];
+      const openrankData = analysisData.openrank || [];
+      const participantData = analysisData.participant || [];
+      const attentionData = analysisData.attention || [];
       setChartData({
-        openrankData: filterLastYearData(rawOpenrankData),
-        activityData: filterLastYearData(rawActivityData),
-        issueCommentsData: filterLastYearData(rawIssueCommentsData),
-        attentionData: filterLastYearData(rawAttentionData),
+        openrankData: filterLastYearData(openrankData),
+        activityData: filterLastYearData(activityData),
+        issueCommentsData: filterLastYearData(participantData),
+        attentionData: filterLastYearData(attentionData),
       });
-    };
+    } else {
+      setChartData({
+        openrankData: [],
+        activityData: [],
+        issueCommentsData: [],
+        attentionData: [],
+      });
+    }
+  }, [analysisData]);
 
-    fetchData();
-  }, [repo]);
+  // 发送数据到后端AI
+  const handleAnalyze = async () => {
+    setLoading(true);
+    setAiResult("");
+    try {
+      const response = await fetch("http://localhost:5001/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repoName: analysisData.repoName,
+          openrank: analysisData.openrank,
+          activity: analysisData.activity,
+          participant: analysisData.participant,
+          attention: analysisData.attention,
+        }),
+      });
+      const data = await response.json();
+      setAiResult(data.analysisReport || "AI无返回内容");
+    } catch (e) {
+      setAiResult("AI分析请求失败：" + e.message);
+    }
+    setLoading(false);
+  };
 
   const option = {
-    title: {
-      text: "概览",
-      left: "20px",
-      top: "20px",
-    },
+    title: { text: "概览", left: "20px", top: "20px" },
     tooltip: {
       trigger: "axis",
       formatter: function (params) {
-        let result =
-          new Date(params[0].axisValue).toLocaleDateString("zh-CN", {
-            year: "numeric",
-            month: "2-digit",
-          }) + "<br/>";
+        let result = params[0].axisValue + "<br/>";
         params.forEach((param) => {
           result +=
             param.marker +
@@ -94,26 +97,22 @@ const OverviewChart = ({ repo }) => {
       containLabel: true,
     },
     xAxis: {
-      type: "time",
+      type: "category",
       boundaryGap: false,
-      axisLabel: {
-        formatter: "{yyyy}-{MM}",
-      },
+      data: chartData.activityData.map((item) => item[0]),
     },
     yAxis: {
       type: "value",
       splitLine: {
         show: true,
-        lineStyle: {
-          type: "dashed",
-        },
+        lineStyle: { type: "dashed" },
       },
     },
     series: [
       {
         name: "OpenRank指数",
         type: "line",
-        data: chartData.openrankData,
+        data: chartData.openrankData.map((item) => [item[0], item[1]]),
         smooth: true,
         symbol: "none",
         itemStyle: { color: "#5470c6" },
@@ -121,7 +120,7 @@ const OverviewChart = ({ repo }) => {
       {
         name: "贡献活跃度",
         type: "line",
-        data: chartData.activityData,
+        data: chartData.activityData.map((item) => [item[0], item[1]]),
         smooth: true,
         symbol: "none",
         itemStyle: { color: "#91cc75" },
@@ -129,7 +128,7 @@ const OverviewChart = ({ repo }) => {
       {
         name: "社区服务与支撑",
         type: "line",
-        data: chartData.issueCommentsData,
+        data: chartData.issueCommentsData.map((item) => [item[0], item[1]]),
         smooth: true,
         symbol: "none",
         itemStyle: { color: "#fac858" },
@@ -137,7 +136,7 @@ const OverviewChart = ({ repo }) => {
       {
         name: "用户欢迎度",
         type: "line",
-        data: chartData.attentionData,
+        data: chartData.attentionData.map((item) => [item[0], item[1]]),
         smooth: true,
         symbol: "none",
         itemStyle: { color: "#ee6666" },
@@ -152,6 +151,26 @@ const OverviewChart = ({ repo }) => {
         style={{ height: "400px" }}
         opts={{ renderer: "svg" }}
       />
+      {/* AI分析按钮和结果展示框 */}
+      <div style={{ marginTop: 32 }}>
+        <button onClick={handleAnalyze} disabled={loading || !analysisData} style={{padding: '8px 20px', fontSize: 16, borderRadius: 6, background: '#1677ff', color: '#fff', border: 'none', cursor: loading ? 'not-allowed' : 'pointer'}}>
+          {loading ? "AI分析中..." : "AI智能分析"}
+        </button>
+        <div
+          style={{
+            marginTop: 16,
+            minHeight: 120,
+            background: "#f7f7f7",
+            borderRadius: 8,
+            padding: 16,
+            color: "#333",
+            fontSize: 16,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {aiResult || "（AI分析结果将在这里显示）"}
+        </div>
+      </div>
     </div>
   );
 };
