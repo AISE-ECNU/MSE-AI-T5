@@ -23,7 +23,7 @@ def call_llm_api(repo_data):
     # 1. 获取 API Key 和 API Endpoint
     # TODO : 如果需要更换 API 端点，可以在 .env 文件中添加 OPENAI_API_URL
     # 学校的chatecnu转发
-    api_key = repo_data.get("apiKey") or "sk-83c8905e047c43028360d08ae554aa07"
+    api_key = repo_data.get("apiKey") or ""
     # api_url = "https://api.openai.com/v1/chat/completions"
     api_url = "https://chat.ecnu.edu.cn/open/api/v1/"
 
