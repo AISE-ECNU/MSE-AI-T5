@@ -3,8 +3,9 @@ import os
 import requests  # 导入requests库
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
+from flask_cors import CORS
 
-# 加载 .env 文件中的环境变量 (例如 OPENAI_API_KEY)
+# 加载 .env 文件中的环境变量 (例如 ECNU_API_KEY)
 load_dotenv()
 
 
@@ -27,22 +28,23 @@ def call_llm_api(repo_data):
     api_url = "https://chat.ecnu.edu.cn/open/api/v1/"
 
     if not api_key:
-        return "错误：OPENAI_API_KEY 未设置。请在 .env 文件中配置您的 API 密钥。"
+        return "错误：ECNU_API_KEY 未设置。请在 .env 文件中配置您的 API 密钥。"
 
     # 2. 根据前端数据构造 Prompt
     prompt = f"""
     你是一名专业的开源项目分析师。请根据以下数据对 GitHub 仓库进行分析：
     - 仓库名称: {repo_data.get('repoName', '未知')}
-    - 整体评分: {repo_data.get('rating', '未知')}
-    - OpenRank趋势: {repo_data.get('openrank_trend', '未知')}
-    - 贡献活跃度趋势: {repo_data.get('activity_trend', '未知')}
+    - OpenRank趋势: {repo_data.get('openrank', '未知')}
+    - 贡献活跃度趋势: {repo_data.get('activity', '未知')}
+    - 社区服务与支撑: {repo_data.get('participant', '未知')}
+    - 用户欢迎度: {repo_data.get('attention', '未知')}
 
     请从以下几个方面给出你的分析报告：
     1. 项目健康度评估。
     2. 潜在的风险点。
     3. 给项目维护者的运营建议。
 
-    请用中文回答。
+    请用中文回答，不要使用markdown的格式，直接纯文本输出。
     """
 
     # 3. 设置HTTP请求的 Headers
@@ -50,7 +52,7 @@ def call_llm_api(repo_data):
 
     # 4. 构造发送给API的JSON数据体 (Payload)
     payload = {
-        "model": "gpt-3.5-turbo",
+        "model": "ecnu-max",  # ECNU平台支持的模型名，按需调整
         "messages": [
             {"role": "system", "content": "你是一名顶级的开源项目分析师。"},
             {"role": "user", "content": prompt},
@@ -70,7 +72,13 @@ def call_llm_api(repo_data):
 
         # 6. 解析返回的JSON数据并提取结果
         response_json = response.json()
-        analysis_result = response_json["choices"][0]["message"]["content"]
+        # ECNU返回格式可能不同，需根据实际返回结构调整
+        if "choices" in response_json:
+            analysis_result = response_json["choices"][0]["message"]["content"]
+        elif "data" in response_json and "choices" in response_json["data"]:
+            analysis_result = response_json["data"]["choices"][0]["message"]["content"]
+        else:
+            analysis_result = str(response_json)
         return analysis_result.strip()
 
     except requests.exceptions.RequestException as e:

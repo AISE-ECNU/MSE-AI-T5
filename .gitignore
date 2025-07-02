@@ -12,6 +12,8 @@ extension/release
 frontend/node_modules
 frontend/.vscode
 
+flask-backend/path
+
 # misc
 .DS_Store
 .env.local

@@ -245,6 +245,31 @@ const AnalysisView: React.FC<Props> = ({
     };
   }, [initializeCharts]);
 
+  // 添加点击处理函数
+  const handleViewDetailedAnalysis = () => {
+    const repoNameOnly = repoName.split("/")[1]; // 获取仓库名称部分（去掉owner）
+    
+    // 准备要传递的数据
+    const analysisData = {
+      repoName: repoName,
+      activity,
+      openrank,
+      attention,
+      contributor,
+      participant,
+      meta,
+      ratings,
+      timestamp: Date.now()
+    };
+    
+    // 将数据编码到URL参数中
+    const encodedData = encodeURIComponent(JSON.stringify(analysisData));
+    const url = `http://localhost:5173/?repo=${repoNameOnly}&data=${encodedData}`;
+    
+    // 跳转到前端页面
+    window.open(url, '_blank');
+  };
+
   return (
     <div style={{ width: "800px", padding: "20px" }}>
       <div
@@ -293,7 +318,7 @@ const AnalysisView: React.FC<Props> = ({
         <div ref={chartRefs.contributor} style={{ height: "250px" }} />
       </div>
       <div style={{ textAlign: "center" }}>
-        <Button type="primary">查看详细分析</Button>
+        <Button type="primary" onClick={handleViewDetailedAnalysis}>查看详细分析</Button>
       </div>
     </div>
   );
