@@ -12,6 +12,10 @@ extension/release
 frontend/node_modules
 frontend/.vscode
 
+# python virtual environment
+flask-backend/.venv
+.venv
+
 flask-backend/path
 
 # misc
